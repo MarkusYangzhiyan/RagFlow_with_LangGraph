@@ -4,7 +4,7 @@
 
 ```powershell
 # 创建虚拟环境
-py -3.12 -m venv .venv
+py -3.14 -m venv .venv
 
 # 激活虚拟环境
 .venv\Scripts\avtivate.ps1
@@ -13,6 +13,7 @@ py -3.12 -m venv .venv
 ## Git 多人协作
 
 ### 创建自己的分支
+
 ```powershell
 # 创建分支：dev_(自己命名)
 git chechout -b dev_yzy
