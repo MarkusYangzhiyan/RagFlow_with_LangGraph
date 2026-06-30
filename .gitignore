@@ -58,6 +58,7 @@ logs/
 data/*
 !data/.gitkeep
 !data/README.md
+!data/manifest.csv
 output/*
 !output/.gitkeep
 !output/README.md
