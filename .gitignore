@@ -59,6 +59,7 @@ data/*
 !data/.gitkeep
 !data/README.md
 !data/manifest.csv
+!data/manifest.schema.json
 output/*
 !output/.gitkeep
 !output/README.md
