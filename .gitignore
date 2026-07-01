@@ -74,3 +74,8 @@ output/*
 Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+
+# Microsoft Office 临时文件
+~$*.pptx
+~$*.docx
+~$*.xlsx
