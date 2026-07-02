@@ -1,15 +1,13 @@
 """构建证据检索 LangGraph 子图。"""
 
-from langchain.graph import END,START,StateGraph
+from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
+from bidguard.workflows.evidence_retrieval.nodes import initialize_state_node
 from bidguard.workflows.evidence_retrieval.state import (
     EvidenceRetrievalInput,
     EvidenceRetrievalState,
-    RetrievalStatus
 )
-from bidguard.workflows.evidence_retrieval.nodes import initialize_state_node
-
 
 EvidenceRetrievalGraph = CompiledStateGraph[
     EvidenceRetrievalState,
@@ -46,3 +44,13 @@ def build_evidence_retrieval_graph() -> EvidenceRetrievalGraph:
     return builder.compile(
         name="evidence-retrieval",
     )
+
+
+
+if __name__ == "__main__":
+    graph = build_evidence_retrieval_graph()
+    result = graph.invoke(
+        {"project_id":"PRJ-001",
+         "query_text":"运维服务期限是什么？"}
+    )
+    print(result)
