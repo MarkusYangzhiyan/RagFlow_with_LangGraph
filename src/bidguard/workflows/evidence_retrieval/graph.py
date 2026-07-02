@@ -47,10 +47,10 @@ def build_evidence_retrieval_graph() -> EvidenceRetrievalGraph:
 
 
 
-if __name__ == "__main__":
-    graph = build_evidence_retrieval_graph()
-    result = graph.invoke(
-        {"project_id":"PRJ-001",
-         "query_text":"运维服务期限是什么？"}
-    )
-    print(result)
+# if __name__ == "__main__":
+#     graph = build_evidence_retrieval_graph()
+#     result = graph.invoke(
+#         {"project_id":"PRJ-001",
+#          "query_text":"运维服务期限是什么？"}
+#     )
+#     print(result)

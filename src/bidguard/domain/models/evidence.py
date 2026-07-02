@@ -11,7 +11,7 @@ from bidguard.domain.enums.artifact_role import ArtifactRole
   "rank": 1,
   "source": {
     "project_id": "PRJ-0001",
-    "document_id": "DOC-0001",
+    "document_ids": "DOC-0001",
     "document_version": null,
     "artifact_role": "tender_document",
     "page_number": 12,
@@ -38,7 +38,7 @@ class EvidenceSource(BaseModel):
 
     ## 数据模型字段设置(7个)
     project_id: str = Field(min_length=1)       # Field添加字段约束：字符串长度至少为 1
-    document_id: str = Field(min_length=1)
+    document_ids: str = Field(min_length=1)
     document_version: str | None = None         
     artifact_role: ArtifactRole
 

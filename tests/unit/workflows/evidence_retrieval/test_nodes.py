@@ -1,11 +1,8 @@
-import pytest 
+import pytest
 
 from bidguard.domain.enums.artifact_role import ArtifactRole
-from bidguard.workflows.evidence_retrieval.state import (
-    EvidenceRetrievalState,
-    RetrievalStatus
-)
 from bidguard.workflows.evidence_retrieval.nodes import initialize_state_node
+from bidguard.workflows.evidence_retrieval.state import EvidenceRetrievalState, RetrievalStatus
 
 #---------------------------------------------------------------------------------------
 # test 1
