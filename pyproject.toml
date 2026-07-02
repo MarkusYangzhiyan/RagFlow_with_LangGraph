@@ -1,0 +1,78 @@
+[build-system]
+requires = ["hatchling>=1.27,<2.0"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "bidguard"
+version = "0.1.0"
+description = "基于 RAGFlow 和 LangGraph 的企业级招投标智能审查 Agent"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+
+# 项目运行时依赖：这些依赖会部署到生产环境。
+dependencies = [
+    "fastapi>=0.138,<1.0",
+    "httpx>=0.28.1,<1.0",
+    "jsonschema>=4.26,<5.0",
+    "langchain-core>=1.4,<2.0",
+    "langgraph>=1.2,<2.0",
+    "pydantic>=2.13,<3.0",
+    "pydantic-settings>=2.14,<3.0",
+    "structlog>=26.1,<27.0",
+    "tenacity>=9.1,<10.0",
+    "uvicorn[standard]>=0.49,<1.0",
+]
+
+
+[project.optional-dependencies]
+# 仅用于本地开发、测试、代码检查和类型检查，不进入生产运行环境。
+dev = [
+    "mypy>=1.20,<2.0",
+    "pytest>=9.1,<10.0",
+    "pytest-asyncio>=1.4,<2.0",
+    "pytest-cov>=7.1,<8.0",
+    "respx>=0.23,<1.0",
+    "ruff>=0.15,<1.0",
+]
+
+
+[tool.hatch.build.targets.wheel]
+# 项目采用 src 目录布局，正式 Python 包位于 src/bidguard。
+packages = ["src/bidguard"]
+
+
+[tool.pytest.ini_options]
+# 测试文件统一放在 tests 目录，并支持异步 LangGraph 和 HTTP 客户端测试。
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+addopts = [
+    "-ra",
+    "--strict-config",
+    "--strict-markers",
+]
+
+
+[tool.ruff]
+# Ruff 负责格式与静态规则检查，目标语法版本为 Python 3.14。
+line-length = 100
+target-version = "py314"
+
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle 错误
+    "F",      # Pyflakes 错误
+    "I",      # import 排序
+    "B",      # 常见 Python 缺陷
+    "UP",     # 使用现代 Python 语法
+    "ASYNC",  # 异步代码常见问题
+]
+
+
+[tool.mypy]
+# Mypy 对 Agent State、接口协议和外部响应模型执行严格类型检查。
+python_version = "3.14"
+strict = true
+plugins = ["pydantic.mypy"]
