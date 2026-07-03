@@ -4,14 +4,14 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
 from bidguard.workflows.evidence_retrieval.nodes import initialize_state_node
+from bidguard.workflows.evidence_retrieval.context import EvidenceRetrievalContext
 from bidguard.workflows.evidence_retrieval.state import (
     EvidenceRetrievalInput,
     EvidenceRetrievalState,
 )
-
 EvidenceRetrievalGraph = CompiledStateGraph[
     EvidenceRetrievalState,
-    None,
+    EvidenceRetrievalContext,
     EvidenceRetrievalInput,
     EvidenceRetrievalState,
 ]
@@ -22,6 +22,7 @@ def build_evidence_retrieval_graph() -> EvidenceRetrievalGraph:
 
     builder = StateGraph(
         EvidenceRetrievalState,
+        context_schema = EvidenceRetrievalContext,
         input_schema=EvidenceRetrievalInput,
         output_schema=EvidenceRetrievalState,
     )
