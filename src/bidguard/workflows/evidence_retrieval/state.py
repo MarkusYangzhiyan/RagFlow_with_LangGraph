@@ -9,7 +9,8 @@ from bidguard.domain.models.evidence import EvidenceChunk
 """
 
 class RetrievalStatus(StrEnum):
-    """证据检索 Agent 的运行状态。"""
+    """证据检索 Agent 的运行状态。
+    pending --> retrieving --> retrievied --> sufficient/insufficient"""
 
     PENDING = "pending"             # 任务刚开始，尚未调用检索服务
     RETRIEVING = "retrieving"       # Agent正在调用ragflow检索证据
@@ -17,6 +18,7 @@ class RetrievalStatus(StrEnum):
     INSUFFICIENT = "insufficient"   # 虽然检索到证据，但是证据不足
     FAILED = "failed"               # 检索流程执行失败
     HUMAN_REVIEW = "human_review"   # 需要人工介入
+    RETRIEVED = "retrieved"         # 检索接口已返回，等待评估证据质量
 
 
 class EvidenceRetrievalInput(TypedDict):
@@ -43,3 +45,6 @@ class EvidenceRetrievalState(EvidenceRetrievalInput):   # 继承EvidenceRetreval
     status: NotRequired[RetrievalStatus]                # 当前检索流程状态
     requires_human_review: NotRequired[bool]            # 是否需要人工介入
     error_message: NotRequired[str | None]              # 保存错误信息
+    total_candidates: NotRequired[int]                    
+    elapsed_ms: NotRequired[int]
+    backend_request_id : NotRequired[str | None]

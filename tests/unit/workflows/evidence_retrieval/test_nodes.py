@@ -1,8 +1,17 @@
 import pytest
+from langgraph.runtime import Runtime
 
+
+from bidguard.application.ports.evidence_retriever import RetrievalResult
+from bidguard.domain.models.evidence import EvidenceChunk,EvidenceSource
 from bidguard.domain.enums.artifact_role import ArtifactRole
-from bidguard.workflows.evidence_retrieval.nodes import initialize_state_node
 from bidguard.workflows.evidence_retrieval.state import EvidenceRetrievalState, RetrievalStatus
+from bidguard.workflows.evidence_retrieval.context import EvidenceRetrievalContext
+from bidguard.workflows.evidence_retrieval.nodes import (
+    initialize_state_node,
+    retrieve_evidence_node,
+)
+from tests.fakes.evidence_retriever import FakeEvidenceRetriever
 
 #---------------------------------------------------------------------------------------
 # test 1
@@ -37,6 +46,9 @@ def test_initialize_state_node_sets_default_and_normalizes_input() -> None:
         "status": RetrievalStatus.PENDING,
         "requires_human_review": False,
         "error_message": None,
+        "total_candidate": 0,
+        "elapsed_ms": 0,
+        "backend_request_id":None
     }
 
 #---------------------------------------------------------------------------------------
@@ -171,3 +183,81 @@ def test_initialize_state_rejects_invalid_max_attempts(
         match="max_attempts 必须在 1 到 5 之间",
     ):
         initialize_state_node(input_state)
+
+
+#---------------------------------------------------------------------------------------
+# test 7
+#---------------------------------------------------------------------------------------
+@pytest.mark.asyncio
+async def test_retrieve_evidence_node_calls_retriever_and_updates_state() -> None:
+    """检索节点应调用 Retriever，并将检索结果写回 State。"""
+
+    evidence = EvidenceChunk(
+        content="投标人应提供三年运维服务。",
+        relevance_score=0.92,
+        rank=1,
+        source=EvidenceSource(
+            project_id="PRJ-0001",
+            document_ids="DOC-0001",
+            artifact_role=ArtifactRole.TENDER_DOCUMENT,
+            page_number=12,
+            section_path=("第三章", "技术要求"),
+            chunk_id="chunk-001",
+        ),
+    )
+
+    retrieval_result = RetrievalResult(
+        evidence=(evidence,),
+        total_candidates=8,
+        elapsed_ms=25,
+        backend_request_id="fake-request-001",
+    )
+
+    fake_retriever = FakeEvidenceRetriever(
+        result=retrieval_result,
+    )
+
+    context = EvidenceRetrievalContext(
+        retriever=fake_retriever,
+    )
+
+    runtime = Runtime(
+        context=context,
+    )
+
+    input_state: EvidenceRetrievalState = {
+        "project_id": "PRJ-0001",
+        "query_text": "运维服务期限是什么？",
+        "artifact_roles": (ArtifactRole.TENDER_DOCUMENT,),
+        "document_ids": ("DOC-0001",),
+        "top_k": 5,
+        "minimum_score": 0.6,
+    }
+
+    initialized_state = initialize_state_node(input_state)
+
+    result = await retrieve_evidence_node(
+        initialized_state,
+        runtime,
+    )
+
+    assert len(fake_retriever.requests) == 1
+
+    received_request = fake_retriever.requests[0]
+
+    assert received_request.project_id == "PRJ-0001"
+    assert received_request.query_text == "运维服务期限是什么？"
+    assert received_request.artifact_roles == (
+        ArtifactRole.TENDER_DOCUMENT,
+    )
+    assert received_request.document_ids == ("DOC-0001",)
+    assert received_request.top_k == 5
+    assert received_request.minimum_score == 0.6
+
+    assert result["evidence"] == (evidence,)
+    assert result["attempt_count"] == 1
+    assert result["status"] == RetrievalStatus.RETRIEVED
+    assert result["total_candidates"] == 8
+    assert result["elapsed_ms"] == 25
+    assert result["backend_request_id"] == "fake-request-001"
+    assert result["error_message"] is None
